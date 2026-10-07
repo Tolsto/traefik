@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	kerror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubefake "k8s.io/client-go/kubernetes/fake"
 )
@@ -89,7 +89,7 @@ func TestSecretInformers_Get(t *testing.T) {
 			secret, err := informers.Get(lookupNamespace, test.namespace, test.name)
 			if test.expectErr {
 				require.Error(t, err)
-				assert.True(t, apierrors.IsNotFound(err))
+				assert.True(t, kerror.IsNotFound(err))
 				return
 			}
 

@@ -6,12 +6,12 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	kerror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/apimachinery/pkg/runtime/schema"
+	kschema "k8s.io/apimachinery/pkg/runtime/schema"
 	kinformers "k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes"
+	kclientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -27,7 +27,7 @@ type SecretInformers struct {
 // NewSecretInformers creates the informers for the given namespaces.
 // The allowed Secret names are grouped by namespace.
 // When allowed is empty, all the Secrets (not owned by Helm) of the given namespaces are watched.
-func NewSecretInformers(client kubernetes.Interface, resync time.Duration, namespaces []string, allowed map[string][]string, handler cache.ResourceEventHandler) (*SecretInformers, error) {
+func NewSecretInformers(client kclientset.Interface, resync time.Duration, namespaces []string, allowed map[string][]string, handler cache.ResourceEventHandler) (*SecretInformers, error) {
 	s := &SecretInformers{
 		factories:  make(map[string]kinformers.SharedInformerFactory),
 		restricted: len(allowed) > 0,
@@ -109,7 +109,7 @@ func (s *SecretInformers) Get(lookupNamespace, namespace, name string) (*corev1.
 	if s.restricted {
 		factory, ok := s.factories[secretKey(namespace, name)]
 		if !ok {
-			return nil, apierrors.NewNotFound(schema.GroupResource{Resource: "secrets"}, name)
+			return nil, kerror.NewNotFound(kschema.GroupResource{Resource: "secrets"}, name)
 		}
 
 		return factory.Core().V1().Secrets().Lister().Secrets(namespace).Get(name)

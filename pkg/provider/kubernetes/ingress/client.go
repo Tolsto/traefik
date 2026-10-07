@@ -183,7 +183,6 @@ func (c *clientWrapper) WatchAll(namespaces []string, stopCh <-chan struct{}) (<
 			return nil, err
 		}
 		c.factoriesKube[ns] = factoryKube
-
 	}
 
 	for _, ns := range namespaces {
